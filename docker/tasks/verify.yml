@@ -1,0 +1,13 @@
+- name: Container_engin-Docker | Verify | Make sure docker be installed and its service be running |
+  shell:  "{{ item }}"
+  register: command_result
+  loop:
+    - docker version
+    - docker-compose version
+
+- name: Container_engin-Docker | Verify | Check Docker version for verification |
+  fail:
+    msg: The Docker service is not started
+  when: command_result.results[0].failed == true
+  ignore_errors: true
+  

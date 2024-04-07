@@ -1,0 +1,16 @@
+- name: Container_engin-Docker | Opensuse | Install Packages |
+  zypper:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - docker
+    - docker-compose
+    - python3-docker
+    - python3-docker-compose
+
+- name: Container_engin-Docker | Opensuse | Ensure docker service enabled and running |
+  systemd:
+    name: docker
+    state: started
+    enabled: true

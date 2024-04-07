@@ -1,0 +1,27 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+  - name: Get Docker client version
+    command: "docker version --format {{ '{{' }}.Client.Version{{ '}}'}}"
+    register: docker_client_version
+
+  - name: Get Docker server version
+    command: "docker version --format {{ '{{' }}.Server.Version{{ '}}'}}"
+    register: docker_server_version
+
+  - name: Get Docker compose version
+    command: docker compose version --short
+    register: docker_compose_version 
+
+  - name: Check proper docker version is installed
+    assert:
+      that: 
+        - docker_client_version.stdout == "23.0.1"
+        - docker_server_version.stdout == "23.0.1"
+        - docker_compose_version.stdout == "2.16.0"
+

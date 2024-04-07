@@ -1,0 +1,30 @@
+---
+- name: Container_engin-Docker | Main | Ansible_facts | |
+  setup:
+    gather_subset:
+      - '!all'
+      - '!min'
+      - os_family
+      - default_ipv4
+  tags:
+    - always
+
+- name: Container_engin-Docker | Main | Include suse task |
+  import_tasks:
+    file: suse.yml
+  when: ansible_facts['os_family'] == "Suse"
+  tags:
+    - always
+
+- name: Container_engin-Docker | Main | Include debian task |
+  import_tasks:
+    file: debian.yml
+  when: ansible_facts['os_family'] == "Debian"
+  tags:
+    - always
+
+- name: Container_engin-Docker | Main | Include verify task |
+  import_tasks:
+    file: verify.yml
+  tags:
+    - always

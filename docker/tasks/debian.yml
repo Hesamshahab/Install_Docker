@@ -1,0 +1,56 @@
+---
+- name: Container_engin-Docker | Essential | Make sure necessary variables is defined
+  assert:
+    that:
+      - default_dns is defined
+      - shecan_ip is defined
+
+- name: Container_engin-Docker | Essential | change namseserver of {{ ansible_default_ipv4.interface }} to Shecan DNS server
+  command: resolvectl dns {{ ansible_default_ipv4.interface }} {{ shecan_ip }}
+
+- name: Container_engin-Docker | Debian | Remove Old Packages
+  apt:
+    name:  "{{ docker_remove_packages_apt }}"
+    state: absent
+
+- name: Container_engin-Docker | Debian | Install Docker Dependencies
+  apt:
+    name: "{{ item.key }}={{ item.value }}"
+    state: present
+    update_cache: yes
+  with_dict:
+    - "{{ docker_install_dependencies_apt }}"
+
+
+- name: Container_engin-Docker | Debian | Add Docker’s official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Container_engin-Docker | Debian | Add APT Repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable
+    state: present
+
+
+- name: Container_engin-Docker | Debian | Install Docker packages
+  apt:
+    name: "{{ item.key }}={{ item.value }}"
+    state: present
+    update_cache: yes
+  with_dict:
+    - "{{ docker_install_packages_apt }}"
+  notify:
+    - restart docker
+
+- name: Container_engin-Docker | Debian | Install Docker Pyhton Module
+  pip:
+    name: "{{ item }}"
+  with_items:
+      - docker>2.6.0
+      - docker-compose    
+
+- name: Container_engin-Docker | Debian | change namseserver of {{ ansible_default_ipv4.interface }} to Default DNS server |
+  command: resolvectl dns {{ ansible_default_ipv4.interface }} {{ default_dns }}
+  tags:
+    - always
